@@ -1,0 +1,28 @@
+{
+    "machine1": {
+        "t1m1": {
+            "id": "Corner Room Glass Cutter",
+            "completed": true,
+            "task": "wipe the floor"
+        },
+        "t2m1": {
+            "id": "Corner Room Glass Cutter",
+            "completed": true,
+            "task": "mop the glass"
+        }
+    },
+    "machine2": {
+        "t2m2": {
+            "id": "Little Glass Fixer",
+            "completed": false,
+            "task": "mop the machine"
+        }
+    },
+    "machine3": {
+        "t3m3": {
+            "id": "Big Glass Fixer",
+            "completed": false,
+            "task": "csdfd"
+        }
+    }
+}
