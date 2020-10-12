@@ -19,3 +19,17 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+> API server & Celery Task scheduler
+
+``` bash
+# install dependencies
+pip install -r requirements.txt
+
+# run flask app
+flask run -p 9999
+
+# run migration
+python manage.py db:migrate
+
+```
