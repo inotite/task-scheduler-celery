@@ -82,7 +82,7 @@ export default{
 }
 .modal-container{
     width: 25em;
-    height: 15em;
+    /* min-height: 15em; */
     background-color: white;
     /* pad inner text */
     padding: 10px 10px;

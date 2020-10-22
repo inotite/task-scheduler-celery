@@ -1,7 +1,5 @@
 import os
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -21,6 +19,5 @@ class DevelopmentConfig(Config):
     DEBUG = True
 
 available_configs = dict(development=DevelopmentConfig, production=ProductionConfig)
-selected_config = os.getenv("FLASK_ENV", "production")
-config = available_configs.get(selected_config, "production")
-print(selected_config)
+selected_config = os.getenv("FLASK_ENV", "development")
+config = available_configs.get(selected_config, "development")

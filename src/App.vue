@@ -80,7 +80,14 @@ export default {
           for (const key in tasks) {
             const value = {}
             tasks[key].forEach(task => {
-              value[`key-${task.id}`] = task
+              const newTask = !task.hours || !task.hours.length ? {
+                ...task,
+                hours: null
+              } : {
+                ...task,
+                hours: JSON.parse(task.hours.replace(/'/g, '"'))
+              }
+              value[`key-${task.id}`] = newTask
             })
             console.log(value)
             this.$set(this.options, key, value)

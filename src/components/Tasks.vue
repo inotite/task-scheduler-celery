@@ -1,8 +1,8 @@
 <template>
 <div>
-<table>
   <reportsmodal v-if="showReportsModal" :machineName="returnMachineName" :numTasks="taskArrayLength"></reportsmodal>
-  <schedulemodal v-if="showScheduleModal" :closeSchedule="closeSchedule()"></schedulemodal>
+  <schedulemodal v-if="showScheduleModal" v-on:closeSchedule="closeSchedule()" :id="activeId" :schedule="schedule"></schedulemodal>
+<table>
   <!--<caption @click="showModal = true" class="task-table">{{this.$parent.selectedMachine[0]['id']}}</caption>-->
 <!-- check if user is authorised to delete an item -->
  <!-- <th v-if="$store.state.authenticated">Edit</th> -->
@@ -17,33 +17,35 @@
       <!--<td v-if="$store.state.authenticated">
         <button classtype="submit" class="btn btn-success" @click="showModal = true">&#9998;</button>
       </td>-->
-      <td>
-        <span><p>AJ</p></span>
-      </td>
-      <td v-if="$store.state.authenticated">
-          <button classtype="submit" class="btn btn-danger" @click="deleteItem(key)">x</button>
-      </td>
-      <td>
-        <input class="task-table-checkbox" type="checkbox" @change="updateTaskStatus(key)" />
-       <td>
-         <span>{{ value.name }}</span>
-         <div class="information-button"></div>
-       </td>
-       <td>
-          <button v-if="!$store.state.authenticated" classtype="submit" class="btn btn-info" @click="showModal = true">?</button>
-          <!-- make editable paragraph box -->
-          <div v-if="$store.state.authenticated" contenteditable="true" @input="getInput(key)">
-           <p>
-              {{ value.description }}
-           </p>
-          </div>
+      <!-- <template v-if="!value.completed"> -->
+        <td>
+          <span><p>AJ</p></span>
+        </td>
+        <td v-if="$store.state.authenticated">
+            <button classtype="submit" class="btn btn-danger" @click="deleteItem(key)">x</button>
         </td>
         <td>
-          <button class="btn btn-success" @click="editSchedule(value)">Schedule</button>
+          <input class="task-table-checkbox" type="checkbox" v-model="value.completed" />
+        <td>
+          <span>{{ value.name }}</span>
+          <div class="information-button"></div>
         </td>
         <td>
-          <button class="btn btn-info" @click="download(value.guide)">Download</button>
-        </td>
+            <button v-if="!$store.state.authenticated" classtype="submit" class="btn btn-info" @click="showModal = true">?</button>
+            <!-- make editable paragraph box -->
+            <div v-if="$store.state.authenticated" contenteditable="true" @input="getInput(key)">
+            <p>
+                {{ value.description }}
+            </p>
+            </div>
+          </td>
+          <td>
+            <button v-if="$store.state.authenticated" class="btn btn-success" @click="editSchedule(value)">Schedule</button>
+          </td>
+          <td>
+            <button class="btn btn-info" @click="download(value.guide)">Download</button>
+          </td>
+        <!-- </template> -->
     </tr>
     <!-- final row to enter new task information -->
     <tr v-if="$store.state.isCreatingNewTask">
@@ -92,7 +94,9 @@ export default {
       taskName: '',
       taskDescription: '',
       selectedKey: '',
-      showScheduleModal: false
+      showScheduleModal: false,
+      activeId: -1,
+      schedule: null
     }
   },
   watch: {
@@ -158,6 +162,7 @@ export default {
     },
     updateTaskStatus (key) {
       this.json[this.selectedKey][key].completed = !this.json[this.selectedKey][key].completed
+      this.$store.dispatch('setTasks', this.json)
     },
     getInput (key) {
       this.json[this.selectedKey][key].description = event.target.innerText
@@ -177,7 +182,13 @@ export default {
       this.taskDescription = event.target.innerText
     },
     postDataToApi () {
-      axios.post(`${process.env.BASE_URL}/tasks`, this.json)
+      const newData = JSON.parse(JSON.stringify(this.json))
+      const activeTasks = newData[this.selectedKey]
+      console.log(activeTasks)
+      const ids = Object.keys(activeTasks).filter(key => activeTasks[key].completed).map(key => activeTasks[key].id)
+      Object.keys(activeTasks).filter(key => activeTasks[key].completed).map(key => delete activeTasks[key])
+      this.$store.dispatch('setTasks', newData)
+      axios.post(`${process.env.BASE_URL}/tasks/complete`, {ids})
         .then((response) => {
           console.log(response)
           // use vue-simple-alert to notify user of successful submit
@@ -213,6 +224,8 @@ export default {
     editSchedule (value) {
       console.log(value)
       this.showScheduleModal = true
+      this.activeId = value.id
+      this.schedule = value.hours
     },
     closeSchedule () {
       this.showScheduleModal = false
